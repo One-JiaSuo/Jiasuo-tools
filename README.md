@@ -2,6 +2,7 @@
 枷锁工具箱是一套面向 macOS 的安全测试工具集合，把常用的安全能力按场景整理到一个统一入口里，覆盖信息收集、漏洞扫描、漏洞利用、中间件测试、数据库利用、WebShell 管理和后渗透辅助。工具箱既支持图形界面，也支持通过 geshell 进行命令   行调用，并且为一部分工具提供了 AI 可调用接口，便于自动化执行、批量检查和标准化操作。项目还针对 macOS 做了启动修复、JDK 探测、Python 依赖和 venv 管理，支   持主版本自用和分享版本分发，适合在明确授权的环境里做靶场验证、资产排查和漏洞复现。
 
 > 仅限在明确授权的资产和测试范围内使用。未授权扫描、爆破、利用或访问他人系统违法。
+<img width="1730" height="1612" alt="image" src="https://github.com/user-attachments/assets/d5409d11-4aaa-42b0-9a82-c2ba3b3b2bd7" />
 
 
 ## 项目定位
@@ -68,8 +69,6 @@ ai/tools.md
 例如：
 <img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/e3f2b6f4-42e0-495f-b8c2-1b843d0bfee1" />
 <img width="800" height="1000" alt="image" src="https://github.com/user-attachments/assets/722559f0-8c50-427c-9d19-7b7cd1c76e27" />
-<img width="1000" height="500" alt="image" src="https://github.com/user-attachments/assets/1173cba7-2f73-4d43-b912-a621b9024591" />
-
 
 ## 架构
 
@@ -254,18 +253,6 @@ CLI 工具：
 ./setup.sh --export-share  生成分享版本
 ```
 
----
-
-## 分享版机制
-
-从主版本导出分享版时，`setup.sh --export-share` 调用导出脚本，执行以下处理：
-
-1. 裁掉标记为不分发的工具和内部维护文件
-2. 保留 `app` 类型工具但提示接收方自行安装
-3. 清理本地 JDK 路径、个人配置等绑定信息
-4. 重新生成干净的 `config.yaml`、`state.yaml`、`ai/tools.md`
-
-接收方解压后通常只需 `./setup.sh` 即可使用，缺失依赖时再 `./setup.sh --full`。
 
 ---
 
@@ -309,11 +296,6 @@ CLI 工具：
 ```bash
 ./setup.sh --full           # 完整安装系统依赖
 ```
-
-### 分享版与主版本的区别
-
-主版本保留完整的个人配置和工具，分享版裁掉了不对外分发的工具和本地绑定信息。两者通过 `--export-share` 生成关系。
-
 
 ## 快速开始
 
@@ -427,20 +409,6 @@ python3 main.py
 
 - 机器上存在对应 `.app` 时可直接打开
 - 不存在时会显示“需要自行安装”的提示
-- 分享版本里也保留这个提示，但不会强行把它们包装成安装步骤
-
-### 分类说明
-
-当前主版本按用途分组，主要分类包括：
-
-- 常规工具
-- 信息收集
-- 漏洞扫描
-- 重点系统
-- 中间件&框架
-- 数据库利用
-- Webshell管理
-- 后渗透
 
 
 ## CLI 使用
@@ -486,7 +454,7 @@ output/runs/<时间>_<工具名>/
 
 ### 接收方可能需要自行补齐
 
-分享版已经尽量把本地路径和绑定依赖去掉了，但接收方机器仍可能需要这些基础条件：
+已经尽量把本地路径和绑定依赖去掉了，但接收方机器仍可能需要这些基础条件：
 
 - Python 3.10+
 - Homebrew
