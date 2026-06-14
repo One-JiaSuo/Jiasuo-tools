@@ -35,13 +35,18 @@
   简单说：这不是一个工具集，而是一个让 AI agent 能像渗透测试工程师一样调用工具的运行时。
 
 ## 页面
+黑色主题
 <img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/6b7ef394-b90e-476a-8f5c-e1fa09effd55" />
+白色主题
+<img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/d30c4b25-4347-4b47-9c33-1f9385f0a365" />
 
 <img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/28d6a25c-eefa-4cfe-9d6d-6d26e883d056" />
 支持ai的cli模式调用
 例如：
 <img width="1280" height="1730" alt="image" src="https://github.com/user-attachments/assets/e3f2b6f4-42e0-495f-b8c2-1b843d0bfee1" />
 <img width="1340" height="1812" alt="image" src="https://github.com/user-attachments/assets/722559f0-8c50-427c-9d19-7b7cd1c76e27" />
+<img width="1506" height="688" alt="image" src="https://github.com/user-attachments/assets/1173cba7-2f73-4d43-b912-a621b9024591" />
+
 
 
 
@@ -294,4 +299,7 @@ output/              运行输出和日志
 ### App 工具打不开
 
 如果工具类型是 `app`，先确认你本机是否安装了对应应用。工具箱不会代替你安装这些 App。
+## 测试效果
+<img width="1960" height="866" alt="image" src="https://github.com/user-attachments/assets/67de3cd2-acf0-4067-8d21-590e10bd27ca" />
+
 
