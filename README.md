@@ -19,13 +19,31 @@
 - [常见问题](#常见问题)
 
 ## 项目定位
+ 一个面向 AI 辅助渗透测试的统一工具调度平台。
 
-这套工具箱有两个使用场景：
+  1. 统一入口，消除工具碎片化。 40+ 个安全工具（Python/Go/Java/二进制）被归一化为一个 geshell
+  命令，屏蔽了底层调用方式的差异。不用记每个工具的路径、语言、启动方式。
+  2. AI 原生设计。 AI可用 标志、tools.md 标注为「AI 参考手册」、风险分级（passive/active/exploit
+  /brute/tunnel/post-exploit）——这些都不是给人类看的便利贴，而是给 AI agent
+  做决策用的元数据。工具名忽略大小写、空格、横线的模糊匹配也是为 AI 调用设计的容错机制。
+  3. 覆盖完整杀伤链。 从信息收集（nmap/httpx/urlfinder）→ 漏洞扫描（nuclei/sqlmap/xray）→
+  漏洞利用（redis/ssti/spring）→
+  后渗透（metasploit/冰蝎/哥斯拉/CobaltStrike），一条链路走到底，不需要在不同平台间切换。
+  4. 人机协作分层。 CLI 工具交给 AI 自动调用，GUI 工具（Burp/Yakit/蚁剑/哥斯拉）标记为 ✗
+  留给人工操作。不是要替代人，而是把机械化的扫描、枚举、爆破交给 AI，人做决策和复杂利用。
 
-1. 你自己的主版本，保留完整工具和本机配置。
-2. 发给别人的分享版本，自动裁掉你不想分发的工具，并提示对方自行安装本机 App。
+  简单说：这不是一个工具集，而是一个让 AI agent 能像渗透测试工程师一样调用工具的运行时。
 
-主版本以仓库根目录为准，分享版本由 `./setup.sh --export-share` 生成，默认输出到 `GetShell-分享版/`。
+## 页面
+<img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/6b7ef394-b90e-476a-8f5c-e1fa09effd55" />
+
+<img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/28d6a25c-eefa-4cfe-9d6d-6d26e883d056" />
+支持ai的cli模式调用
+例如：
+<img width="1280" height="1730" alt="image" src="https://github.com/user-attachments/assets/e3f2b6f4-42e0-495f-b8c2-1b843d0bfee1" />
+<img width="1340" height="1812" alt="image" src="https://github.com/user-attachments/assets/722559f0-8c50-427c-9d19-7b7cd1c76e27" />
+
+
 
 ## 快速开始
 
@@ -194,33 +212,7 @@ output/runs/<时间>_<工具名>/
 - `stderr.txt`
 - `meta.yaml`
 
-## 分发版本
 
-如果你要把工具箱发给别人，先从主版本生成分享版：
-
-```bash
-./setup.sh --export-share
-```
-
-生成结果在：
-
-```text
-GetShell-分享版/
-```
-
-分享版的规则是：
-
-- 去掉你不想分发的工具
-- 去掉内部维护文件
-- 保留 `app` 类型工具，但提示接收方自己安装
-- 把 Python 工具的启动方式调整为更适合接收方环境的形式
-- 自带可运行的 `config.yaml`、`ai/tools.md`、`state.yaml`
-
-发出去之前，建议你在主版本先检查一次：
-
-```bash
-./setup.sh --check --strict
-```
 
 ### 接收方可能需要自行补齐
 
@@ -303,35 +295,3 @@ output/              运行输出和日志
 
 如果工具类型是 `app`，先确认你本机是否安装了对应应用。工具箱不会代替你安装这些 App。
 
-### 分享版和主版本的区别
-
-- 主版本：保留你自己的完整工具和个人配置
-- 分享版本：裁掉你不想发的工具，适合直接给别人解压使用
-
-## 分发建议
-
-建议你在主版本里先跑：
-
-```bash
-./setup.sh --check --strict
-```
-
-通过后再导出分享版：
-
-```bash
-./setup.sh --export-share
-```
-
-然后把 `GetShell-分享版/` 发给对方。对方通常只需要：
-
-```bash
-cd GetShell-分享版
-./setup.sh
-python3 main.py
-```
-
-如果对方机器缺少系统依赖，再补：
-
-```bash
-./setup.sh --full
-```
