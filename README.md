@@ -1,7 +1,7 @@
 # 枷锁工具箱 / Jiasuo Tools
-枷锁工具箱是一套面向 macOS 的安全测试工具集合，把常用的安全能力按场景整理到   一个统一入口里，覆盖信息收集、漏洞扫描、漏洞利用、中间件测试、数据库利用、   WebShell 管理和后渗透辅助。工具箱既支持图形界面，也支持通过 geshell 进行命令   行调用，并且为一部分工具提供了 AI 可调用接口，便于自动化执行、批量检查和标准   化操作。项目还针对 macOS 做了启动修复、JDK 探测、Python 依赖和 venv 管理，支   持主版本自用和分享版本分发，适合在明确授权的环境里做靶场验证、资产排查和漏洞复现。
+枷锁工具箱是一套面向 macOS 的安全测试工具集合，把常用的安全能力按场景整理到一个统一入口里，覆盖信息收集、漏洞扫描、漏洞利用、中间件测试、数据库利用、WebShell 管理和后渗透辅助。工具箱既支持图形界面，也支持通过 geshell 进行命令   行调用，并且为一部分工具提供了 AI 可调用接口，便于自动化执行、批量检查和标准化操作。项目还针对 macOS 做了启动修复、JDK 探测、Python 依赖和 venv 管理，支   持主版本自用和分享版本分发，适合在明确授权的环境里做靶场验证、资产排查和漏洞复现。
 
-> 仅限在明确授权的资产和测试范围内使用。未授权扫描、爆破、利用或访问他人系统可能违法。
+> 仅限在明确授权的资产和测试范围内使用。未授权扫描、爆破、利用或访问他人系统违法。
 
 
 ## 项目定位
@@ -62,18 +62,18 @@ ai/tools.md
 <img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/6b7ef394-b90e-476a-8f5c-e1fa09effd55" />
 白色主题
 <img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/d30c4b25-4347-4b47-9c33-1f9385f0a365" />
-
+其他页面
 <img width="2690" height="1464" alt="image" src="https://github.com/user-attachments/assets/28d6a25c-eefa-4cfe-9d6d-6d26e883d056" />
 支持ai的cli模式调用
 例如：
-<img width="1280" height="1730" alt="image" src="https://github.com/user-attachments/assets/e3f2b6f4-42e0-495f-b8c2-1b843d0bfee1" />
-<img width="1340" height="1812" alt="image" src="https://github.com/user-attachments/assets/722559f0-8c50-427c-9d19-7b7cd1c76e27" />
-<img width="1506" height="688" alt="image" src="https://github.com/user-attachments/assets/1173cba7-2f73-4d43-b912-a621b9024591" />
+<img width="800" height="800" alt="image" src="https://github.com/user-attachments/assets/e3f2b6f4-42e0-495f-b8c2-1b843d0bfee1" />
+<img width="800" height="1000" alt="image" src="https://github.com/user-attachments/assets/722559f0-8c50-427c-9d19-7b7cd1c76e27" />
+<img width="1000" height="500" alt="image" src="https://github.com/user-attachments/assets/1173cba7-2f73-4d43-b912-a621b9024591" />
 
 
 ## 架构
 
-<img width="1148" height="1442" alt="image" src="https://github.com/user-attachments/assets/9654700a-5576-4ea9-8992-57812e96ae52" />
+<img width="1000" height="1000" alt="image" src="https://github.com/user-attachments/assets/9654700a-5576-4ea9-8992-57812e96ae52" />
 
 
 ### 核心设计原则
@@ -566,5 +566,15 @@ output/              运行输出和日志
 如果工具类型是 `app`，先确认你本机是否安装了对应应用。工具箱不会代替你安装这些 App。
 ## 测试效果
 <img width="1960" height="866" alt="image" src="https://github.com/user-attachments/assets/67de3cd2-acf0-4067-8d21-590e10bd27ca" />
+## 开源与共建
+
+枷锁工具箱是一个完全开源的项目，项目代码、配置和工具调度逻辑都会尽量保持透明。这个项目目前主要是在 AI 辅助下完成开发和整理的，很多功能也是在我自己的使用场景中一点点打磨出来的，所以它不一定完美，也不一定适配所有人的 macOS 环境。
+
+我非常欢迎大家基于这个项目进行二次开发、功能扩展、环境适配和体验优化。无论是新增工具、修复兼容性问题、改进安装流程、完善文档说明，还是优化 GUI、CLI 和 AI 调用方式，都可以在这个项目基础上继续改进。
+
+如果你在使用过程中遇到问题，或者有更好的建议、功能想法、工具推荐、兼容性修复方案，也欢迎通过 Issue、Pull Request 或其他方式反馈。希望这个项目不只是我个人的安全工具箱，也可以慢慢变成一个大家一起维护、一起完善的 macOS 安全测试工具集合。
+
+本项目仅用于合法授权的安全研究、教学、靶场验证和企业内部安全测试。希望大家在合规、授权的前提下使用和改进它，一起把这个工具箱做得更稳定、更好用。
+
 
 
