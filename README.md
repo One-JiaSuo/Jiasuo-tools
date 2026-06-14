@@ -1,22 +1,28 @@
 # Jiasuo-tools
 枷锁工具箱是一套面向 macOS 的安全测试工具集合，把常用的安全能力按场景整理到   一个统一入口里，覆盖信息收集、漏洞扫描、漏洞利用、中间件测试、数据库利用、   WebShell 管理和后渗透辅助。工具箱既支持图形界面，也支持通过 geshell 进行命令   行调用，并且为一部分工具提供了 AI 可调用接口，便于自动化执行、批量检查和标准   化操作。项目还针对 macOS 做了启动修复、JDK 探测、Python 依赖和 venv 管理，支   持主版本自用和分享版本分发，适合在明确授权的环境里做靶场验证、资产排查和漏洞复现。
 
-# 枷锁工具箱
-
-枷锁工具箱是一套面向 macOS 的安全测试工具集合，覆盖信息收集、漏洞扫描、漏洞利用、中间件测试、数据库测试、WebShell 管理和后渗透辅助。它支持图形界面操作，也提供 `geshell` 作为统一命令行入口。
-
 > 仅限在明确授权的资产和测试范围内使用。未授权扫描、爆破、利用或访问他人系统可能违法。
+# 枷锁工具箱 / Jiasuo Tools
 
-## 目录
+项目简介
+免责声明
 
-- [项目定位](#项目定位)
-- [快速开始](#快速开始)
-- [安装与修复](#安装与修复)
-- [GUI 使用](#gui-使用)
-- [CLI 使用](#cli-使用)
-- [分发版本](#分发版本)
-- [目录说明](#目录说明)
-- [常见问题](#常见问题)
+## 项目定位
+## 给使用者的建议
+## 页面展示
+## 架构
+## 核心设计原则
+## 快速开始
+## 安装与修复
+## GUI 使用
+## CLI 使用
+## 工具分类与调用方式
+## 分享版机制
+## 技术栈
+## 目录结构
+## 常见问题
+## 测试效果
+## 免责声明
 
 ## 项目定位
  一个面向 AI 辅助渗透测试的统一工具调度平台。
@@ -33,6 +39,43 @@
   留给人工操作。不是要替代人，而是把机械化的扫描、枚举、爆破交给 AI，人做决策和复杂利用。
 
   简单说：这不是一个工具集，而是一个让 AI agent 能像渗透测试工程师一样调用工具的运行时。
+## 给使用者的建议
+
+这个工具箱目前主要是在我自己的 Mac 上开发和调试的，我这边能跑起来，不代表所有人的 Mac 下载后都能直接跑起来。因为每个人电脑里的 Python、JDK、Homebrew、系统权限、第三方工具路径都不一样，安全工具又比较依赖环境，所以换一台机器可能会遇到各种路径、权限或依赖问题。
+
+所以我的建议是：下载项目后，先用自己的 AI 编程助手，比如 Claude Code、Cursor、Codex 等，把整个项目读一遍，让它先了解项目结构和启动方式，再根据你自己电脑上的报错来修。
+
+你可以让 AI 重点看这些文件：
+
+```text
+README.md
+setup.sh
+config.yaml
+geshell
+main.py
+ai/tools.md
+```
+
+然后先运行：
+
+```bash
+./setup.sh --check
+```
+
+有问题再根据情况运行：
+
+```bash
+./setup.sh --repair
+```
+
+或者：
+
+```bash
+./setup.sh --full
+```
+
+如果还是报错，就把终端报错复制给 AI，让它结合项目代码帮你改。这个项目不是那种完全商业化的一键安装软件，更偏向一个 AI 辅助开发出来的个人安全工具箱，适合有一定动手能力的人根据自己的 Mac 环境进行调整。
+
 
 ## 页面
 黑色主题
@@ -48,6 +91,248 @@
 <img width="1506" height="688" alt="image" src="https://github.com/user-attachments/assets/1173cba7-2f73-4d43-b912-a621b9024591" />
 
 
+## 架构
+
+<img width="1148" height="1442" alt="image" src="https://github.com/user-attachments/assets/9654700a-5576-4ea9-8992-57812e96ae52" />
+
+
+### 核心设计原则
+
+**1. 声明式配置驱动**
+
+所有工具的定义集中在 `config.yaml` 中，不在代码中硬编码。添加新工具只需在 YAML 中新增一段配置，无需修改任何 Python 代码。工具定义与运行时状态分离——`config.yaml` 存放工具声明和 JDK 路径，`state.yaml` 存放用户偏好（主题、字号、窗口位置等），后者可被分享版覆盖而不丢失个性化设置。
+
+**2. 统一的 Runner 抽象**
+
+五种工具类型通过统一的 runner 层抽象：
+
+| 类型      | 说明           | 启动方式                                            |
+| --------- | -------------- | --------------------------------------------------- |
+| `python`  | Python 脚本    | 独立 venv 中的 Python 解释器                        |
+| `jar`     | Java 应用      | `lib/launch_jar.py` 解析 JDK 别名后调用 `java -jar` |
+| `command` | Shell 脚本     | `bash start.command` 或直接执行二进制               |
+| `cli`     | 系统命令       | 直接在终端中运行（如 `nmap`、`sqlmap`）             |
+| `app`     | macOS 原生应用 | `open /Applications/XXX.app`                        |
+
+每种类型都有一个对应的 runner 子类型（`python`/`jar`/`binary`/`system`/`command`/`app`），`launch.py` 中的 `_runner_command()` 负责将 runner 配置解析为可执行的命令列表。
+
+**3. 环境隔离**
+
+每个 Python 工具拥有独立的虚拟环境（venv），避免依赖冲突。Java 工具通过 JDK 别名系统支持同时使用 JDK 8 和 JDK 17，路径由 `config.yaml` 中的 `jdk.jdk8.home` 和 `jdk.jdk17.home` 指定，`setup.sh` 可自动探测和刷新这些路径。
+
+**4. 双入口设计**
+
+- **GUI** (`main.py`): CustomTkinter 实现的图形界面，左侧分类栏 + 右侧工具卡片，支持搜索、主题切换、拖拽排序、工具的增删改
+- **CLI** (`geshell` → `ai/launch.py`): 为 AI agent 设计的命令行接口，支持模糊匹配工具名、运行日志记录、自检和文档生成
+
+**5. AI 原生设计**
+
+每个工具有 `ai_callable` 标志和 `risk` 风险等级（passive/active/exploit/brute/tunnel/post-exploit），供 AI agent 做调用决策。`geshell list` 的输出格式、`tools.md` 的文档结构、工具名的容错匹配（忽略大小写、空格、横线、下划线）都是为 AI 调用场景优化的。
+
+---
+
+## 目录结构
+
+```
+GetShell/
+├── app/                      # GUI 前端
+│   ├── gui.py                # 主界面（分类/搜索/启动/主题）
+│   ├── config_loader.py      # config.yaml 解析与校验
+│   ├── launcher.py           # 工具启动调度（终端/GUI/直接执行）
+│   ├── models.py             # 数据模型（AppConfig/ToolConfig/Category/JdkConfig）
+│   ├── cards.py              # 工具卡片渲染
+│   ├── sidebar.py            # 侧边栏（分类列表/拖拽排序/右键菜单）
+│   ├── dialogs.py            # 工具编辑对话框
+│   ├── theme.py              # 主题系统（深色/浅色/配色方案）
+│   ├── platform.py           # macOS 平台适配（标题栏/外观）
+│   ├── scroll.py             # 滚动管理
+│   └── constants.py          # 项目根路径常量
+│
+├── ai/                       # CLI 后端 & AI 接口
+│   ├── launch.py             # geshell 后端（工具解析/调度/日志/doctor/selftest）
+│   ├── selftest.py           # 最小回归自测
+│   └── tools.md              # 自动生成的 AI 参考手册
+│
+├── lib/                      # 公共库
+│   ├── launch_jar.py         # Java 工具启动器（解析 JDK 别名 → java -jar）
+│   └── java_home.sh          # JDK 探测脚本
+│
+├── config.yaml               # 工具声明配置（分类/工具定义/JDK 路径）
+├── state.yaml                # 用户运行时状态（主题/字号/窗口位置）
+├── geshell                   # CLI 入口脚本（bash 包装 → ai/launch.py）
+├── main.py                   # GUI 入口
+├── setup.sh                  # 环境安装/修复/检查/分享版导出
+├── requirements.txt          # 主环境 Python 依赖
+├── 启动.command              # macOS 图形启动入口
+│
+├── 信息收集/                  # nmap, httpx, ffuf, fscan, hydra, frp...
+├── 漏洞扫描/                  # nuclei, sqlmap, dalfox, Ingram...
+├── 漏洞利用/                  # SSTImap, Fenjing, docem...
+├── 中间件rce/                 # TomcatScanPro, WeblogicTool, PHP免杀马...
+├── 组件框架/                  # SpringKit, Shiro, Struts2, ThinkPHP...
+├── 数据库rce/                 # RedisKit, 数据库综合利用...
+├── 重点系统/                  # 若依, Jenkins, Nacos, XXL-JOB...
+├── OA梭哈/                    # IWannaGetAll, Hyacinth
+├── CMS Getshell/             # DedeCMS
+├── webshell/                 # 冰蝎, 哥斯拉
+├── Xray/                     # 被动扫描器
+├── CobaltStrike4.9.1/        # CS 团队服务器
+└── 后渗透/                    # Metasploit, 反弹Shell
+```
+
+---
+
+## 工具分类与调用方式
+
+### 配置驱动下的工具注册机制
+
+每个工具在 `config.yaml` 中的最小定义：
+
+```yaml
+- name: nmap
+  description: 网络发现与安全审计工具
+  type: command
+  ai_callable: true
+  runner:
+    type: system
+    command: nmap
+  dependencies:
+  - nmap
+```
+
+关键字段说明：
+
+| 字段           | 说明                                                         |
+| -------------- | ------------------------------------------------------------ |
+| `name`         | 工具显示名称，也是 `geshell` 的匹配目标                      |
+| `type`         | 五大类型之一：`python` / `jar` / `command` / `cli` / `app`   |
+| `ai_callable`  | 是否允许 AI 直接调用（GUI 工具设为 false）                   |
+| `risk`         | 风险等级：`passive` / `active` / `exploit` / `brute` / `tunnel` / `post-exploit` |
+| `runner`       | 启动器配置（类型 + 路径/入口/JDK 等）                        |
+| `dependencies` | 系统依赖列表，doctor 检查时用                                |
+| `aliases`      | 别名列表，用于模糊匹配                                       |
+| `working_dir`  | 工作目录，相对于项目根目录                                   |
+| `venv`         | 是否使用独立虚拟环境                                         |
+| `interactive`  | 是否需要在终端中交互运行                                     |
+
+### Runner 类型路由
+
+工具名称匹配后，`ai/launch.py` 的 `build_command()` 函数按 runner 类型路由到不同的命令构建逻辑：
+
+```
+runner.type = "system"   → 直接调用系统 PATH 中的命令
+runner.type = "binary"   → 调用项目内预编译的二进制文件
+runner.type = "python"   → 调用 Python 解释器 + 入口脚本（可选择 venv）
+runner.type = "jar"      → 调用 java -jar（通过 lib/launch_jar.py 解析 JDK 别名）
+runner.type = "command"  → 调用 .command shell 脚本
+runner.type = "app"      → 调用 macOS open 命令
+```
+---
+
+## 快速开始
+
+```bash
+cd GetShell
+./setup.sh                 # 修复权限 + 环境检查
+```
+
+启动 GUI：
+
+```bash
+python3 main.py
+```
+
+CLI 工具：
+
+```bash
+./geshell list             # 列出所有工具
+./geshell info nmap        # 查看工具详情
+./geshell nmap -sV -p 22,80,443 192.168.1.1
+./geshell nuclei -u http://target.com -severity critical,high
+./geshell sqlmap -u "http://target/page?id=1" --batch --dbs
+```
+
+如果环境缺失依赖：
+
+```bash
+./setup.sh --full          # 完整初始化（Homebrew + Python + JDK + 系统命令 + venv）
+```
+
+---
+
+## setup.sh 模式说明
+
+```
+./setup.sh                 默认: 修复权限/路径 + 环境检查
+./setup.sh --check         只检查环境
+./setup.sh --repair        修复 quarantine、权限、geshell 链接、JDK 路径
+./setup.sh --install-deps  安装缺失的系统依赖（Homebrew/Python/JDK/nmap 等）
+./setup.sh --rebuild-venv  重建所有 Python 虚拟环境
+./setup.sh --full          完整初始化（上述所有步骤）
+./setup.sh --strict        检查失败时以非零状态退出
+./setup.sh --no-doctor     跳过 geshell doctor/selftest
+./setup.sh --export-share  生成分享版本
+```
+
+---
+
+## 分享版机制
+
+从主版本导出分享版时，`setup.sh --export-share` 调用导出脚本，执行以下处理：
+
+1. 裁掉标记为不分发的工具和内部维护文件
+2. 保留 `app` 类型工具但提示接收方自行安装
+3. 清理本地 JDK 路径、个人配置等绑定信息
+4. 重新生成干净的 `config.yaml`、`state.yaml`、`ai/tools.md`
+
+接收方解压后通常只需 `./setup.sh` 即可使用，缺失依赖时再 `./setup.sh --full`。
+
+---
+
+## 技术栈
+
+| 层级          | 技术                                           |
+| ------------- | ---------------------------------------------- |
+| GUI           | Python 3.10+, CustomTkinter, tkinter           |
+| 配置          | YAML (PyYAML)                                  |
+| Java 工具调度 | JDK 8 / JDK 17 双版本支持, `lib/launch_jar.py` |
+| 环境管理      | Bash (setup.sh), Python venv, Homebrew         |
+| 平台          | macOS (Darwin), Apple Silicon + Rosetta 2      |
+| AI 接口       | `ai/launch.py` (纯 Python, 无额外依赖)         |
+
+---
+
+## 常见问题
+
+### geshell 找不到
+
+```bash
+./geshell list              # 使用相对路径
+./setup.sh --repair         # 修复链接
+```
+
+### Python 虚拟环境损坏
+
+```bash
+./setup.sh --rebuild-venv
+```
+
+### Java 工具启动失败
+
+```bash
+./setup.sh --repair         # 自动探测并刷新 JDK 路径到 config.yaml
+./geshell doctor            # 检查 JDK 配置
+```
+
+### 工具提示依赖缺失
+
+```bash
+./setup.sh --full           # 完整安装系统依赖
+```
+
+### 分享版与主版本的区别
+
+主版本保留完整的个人配置和工具，分享版裁掉了不对外分发的工具和本地绑定信息。两者通过 `--export-share` 生成关系。
 
 
 ## 快速开始
